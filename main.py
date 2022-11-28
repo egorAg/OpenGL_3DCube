@@ -1,51 +1,65 @@
 import pygame
 from pygame.locals import *
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
-verticies = (
-    (1, -1, -1),
-    (1, 1, -1),
-    (-1, 1, -1),
-    (-1, -1, -1),
-    (1, -1, 1),
-    (1, 1, 1),
-    (-1, -1, 1),
-    (-1, 1, 1)
-    )
+
+vertices = (
+    (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, 1, 1),
+    (1, 1, -1), (1, -1, -1), (-1, -1, -1), (-1, 1, -1)
+)  # задаем вертикали куба
+
 edges = (
-    (0,1),
-    (0,3),
-    (0,4),
-    (2,1),
-    (2,3),
-    (2,7),
-    (6,3),
-    (6,4),
-    (6,7),
-    (5,1),
-    (5,4),
-    (5,7)
-    )
-def Cube():
-    glBegin(GL_LINES)
-    for edge in edges:
-        for vertex in edge:
-            glVertex3fv(verticies[vertex])
+    (0, 1, 2, 3), #front
+    (4, 5, 6, 7), #back
+    (0, 1, 5, 4), #RSide
+    (3, 2, 6, 7),#LSide
+    (0, 3, 7, 4),
+    (1, 2, 6, 5)
+)
+
+colors = (
+    (1, 0, 1),
+    (1, 1, 0),
+    (0, 1, 1),
+    (1, 0, 0),
+    (0, 0, 1),
+    (0, 1, 0),
+    (1, 1, 1),
+)
+
+
+def sq():
+    glBegin(GL_QUADS)
+    x = 0
+    for e in edges:
+        x = x+1
+        print(x)
+        glColor3fv(colors[x])
+        for vertex in e:
+            glVertex3iv(vertices[vertex])
     glEnd()
+
+
 def main():
     pygame.init()
-    display = (800,600)
-    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
-    gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
-    glTranslatef(0.0,0.0, -5)
+    display = (500, 500)
+    pygame.display.set_mode(display, DOUBLEBUF | OPENGL | RESIZABLE)
+
+    gluPerspective(40, display[0] / display[1], 1, 10)
+    glTranslatef(0.0, 0.0, -5)
+    glRotate(45, 1, 1, 0)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        glRotatef(1, 3, 1, 1)
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-        Cube()
+        glRotate(1, 1, 2, 1)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        sq()
         pygame.display.flip()
-        pygame.time.wait(10)
+        pygame.time.wait(20)
+
+
 main()
