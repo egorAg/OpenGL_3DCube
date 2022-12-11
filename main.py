@@ -1,65 +1,111 @@
-import pygame
-from pygame.locals import *
-
 from OpenGL.GL import *
+from OpenGL.GLUT import *
 from OpenGL.GLU import *
 
-vertices = (
-    (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, 1, 1),
-    (1, 1, -1), (1, -1, -1), (-1, -1, -1), (-1, 1, -1)
-)  # задаем вертикали куба
+ESCAPE = '\033'
 
-edges = (
-    (0, 1, 2, 3), #front
-    (4, 5, 6, 7), #back
-    (0, 1, 5, 4), #RSide
-    (3, 2, 6, 7),#LSide
-    (0, 3, 7, 4),
-    (1, 2, 6, 5)
-)
+window = 0
 
-colors = (
-    (1, 0, 1),
-    (1, 1, 0),
-    (0, 1, 1),
-    (1, 0, 0),
-    (0, 0, 1),
-    (0, 1, 0),
-    (1, 1, 1),
-)
+# rotation
+X_AXIS = 0.0
+Y_AXIS = 0.0
+Z_AXIS = 0.0
+
+DIRECTION = 1
+
+def InitGL(Width, Height):
+    glClearColor(0.0, 0.0, 0.0, 0.0)
+    glClearDepth(1.0)
+    glDepthFunc(GL_LESS)
+    glEnable(GL_DEPTH_TEST)
+    glShadeModel(GL_SMOOTH)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
+    glMatrixMode(GL_MODELVIEW)
 
 
-def sq():
+def keyPressed(*args):
+    if args[0] == ESCAPE:
+        sys.exit()
+
+
+def DrawGLScene():
+    global X_AXIS, Y_AXIS, Z_AXIS
+    global DIRECTION
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glLoadIdentity()
+    glTranslatef(0.0, 0.0, -6.0)
+
+    glRotatef(X_AXIS, 1.0, 0.0, 0.0)
+    glRotatef(Y_AXIS, 0.0, 1.0, 0.0)
+    glRotatef(Z_AXIS, 0.0, 0.0, 1.0)
+
+    # Draw Cube (multiple quads)
     glBegin(GL_QUADS)
-    x = 0
-    for e in edges:
-        x = x+1
-        print(x)
-        glColor3fv(colors[x])
-        for vertex in e:
-            glVertex3iv(vertices[vertex])
+
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(1.0, 1.0, -1.0)
+    glVertex3f(-1.0, 1.0, -1.0)
+    glVertex3f(-1.0, 1.0, 1.0)
+    glVertex3f(1.0, 1.0, 1.0)
+
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(1.0, -1.0, 1.0)
+    glVertex3f(-1.0, -1.0, 1.0)
+    glVertex3f(-1.0, -1.0, -1.0)
+    glVertex3f(1.0, -1.0, -1.0)
+
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(1.0, 1.0, 1.0)
+    glVertex3f(-1.0, 1.0, 1.0)
+    glVertex3f(-1.0, -1.0, 1.0)
+    glVertex3f(1.0, -1.0, 1.0)
+
+    glColor3f(1.0, 1.0, 0.0)
+    glVertex3f(1.0, -1.0, -1.0)
+    glVertex3f(-1.0, -1.0, -1.0)
+    glVertex3f(-1.0, 1.0, -1.0)
+    glVertex3f(1.0, 1.0, -1.0)
+
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(-1.0, 1.0, 1.0)
+    glVertex3f(-1.0, 1.0, -1.0)
+    glVertex3f(-1.0, -1.0, -1.0)
+    glVertex3f(-1.0, -1.0, 1.0)
+
+    glColor3f(1.0, 0.0, 1.0)
+    glVertex3f(1.0, 1.0, -1.0)
+    glVertex3f(1.0, 1.0, 1.0)
+    glVertex3f(1.0, -1.0, 1.0)
+    glVertex3f(1.0, -1.0, -1.0)
+
     glEnd()
+
+    X_AXIS = X_AXIS - 0.30
+    Z_AXIS = Z_AXIS - 0.30
+
+    glutSwapBuffers()
 
 
 def main():
-    pygame.init()
-    display = (500, 500)
-    pygame.display.set_mode(display, DOUBLEBUF | OPENGL | RESIZABLE)
+    global window
 
-    gluPerspective(40, display[0] / display[1], 1, 10)
-    glTranslatef(0.0, 0.0, -5)
-    glRotate(45, 1, 1, 0)
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+    glutInitWindowSize(640, 480)
+    glutInitWindowPosition(200, 200)
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-        glRotate(1, 1, 2, 1)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        sq()
-        pygame.display.flip()
-        pygame.time.wait(20)
+    window = glutCreateWindow('OpenGL Python Cube')
+
+    glutDisplayFunc(DrawGLScene)
+    glutIdleFunc(DrawGLScene)
+    glutKeyboardFunc(keyPressed)
+    InitGL(640, 480)
+    glutMainLoop()
 
 
-main()
+if __name__ == "__main__":
+    main()
