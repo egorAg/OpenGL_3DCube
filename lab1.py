@@ -98,7 +98,7 @@ def main():
     glutInitWindowSize(640, 480)
     glutInitWindowPosition(200, 200)
 
-    window = glutCreateWindow('OpenGL Python Cube')
+    window = glutCreateWindow('OpenGL lab 1')
 
     glutDisplayFunc(DrawGLScene)
     glutIdleFunc(DrawGLScene)
